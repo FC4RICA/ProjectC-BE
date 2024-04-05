@@ -1,0 +1,33 @@
+version: '3.1'
+
+services:
+  app:
+    image: golang:1.19-alpine
+    container_name: my_golang
+    build:  .
+    restart : always
+    ports:
+      - "8080:8080"
+
+
+  postgres:
+    image: postgres:latest
+    container_name: kmutt
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: kmutt
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: my_pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    restart: always

@@ -1,6 +1,6 @@
 module github.com/Narutchai01/ProjectC-BE
 
-go 1.22.0
+go 1.22
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect

@@ -1,5 +1,5 @@
 # Use the official Golang image as the base image
-FROM golang:1.19-alpine
+FROM golang:1.22-alpine
 
 # Set the working directory to /app
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the Go source code
-COPY . .
+COPY *.go ./
 
 # Build the Go application
 RUN go build -o main .

@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -7,16 +7,20 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Narutchai01/ProjectC-BE/data"
+	"github.com/Narutchai01/ProjectC-BE/db"
 	"github.com/Narutchai01/ProjectC-BE/handlers"
+	"github.com/Narutchai01/ProjectC-BE/types"
+	"github.com/Narutchai01/ProjectC-BE/util"
 	"github.com/gorilla/mux"
 )
 
 type APIServer struct {
 	listenAddr string
-	store      Storage
+	store      db.Storage
 }
 
-func NewAPIServer(listenAddr string, store Storage) *APIServer {
+func NewAPIServer(listenAddr string, store db.Storage) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
 		store:      store,
@@ -57,17 +61,17 @@ func (s *APIServer) handleAccountByID(w http.ResponseWriter, r *http.Request) er
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	createAccountReq := new(CreateAccountRequest)
+	createAccountReq := new(data.CreateAccountRequest)
 	if err := json.NewDecoder(r.Body).Decode(createAccountReq); err != nil {
 		return err
 	}
 
-	account := NewAccount(createAccountReq.Name, createAccountReq.Email)
+	account := data.NewAccount(createAccountReq.Name, createAccountReq.Email)
 	if err := s.store.CreateAccount(account); err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, account)
+	return util.WriteJSON(w, http.StatusOK, account)
 }
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
@@ -76,7 +80,7 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, accounts)
+	return util.WriteJSON(w, http.StatusOK, accounts)
 }
 
 func (s *APIServer) handleGetAccountByID(w http.ResponseWriter, r *http.Request) error {
@@ -90,7 +94,7 @@ func (s *APIServer) handleGetAccountByID(w http.ResponseWriter, r *http.Request)
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, account)
+	return util.WriteJSON(w, http.StatusOK, account)
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
@@ -103,7 +107,7 @@ func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, map[string]int{"deleted": id})
+	return util.WriteJSON(w, http.StatusOK, map[string]int{"deleted": id})
 }
 
 func getID(r *http.Request) (int, error) {
@@ -116,22 +120,12 @@ func getID(r *http.Request) (int, error) {
 	return id, nil
 }
 
-func WriteJSON(w http.ResponseWriter, status int, v any) error {
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(v)
-}
-
 type apiFunc func(http.ResponseWriter, *http.Request) error
-
-type ApiError struct {
-	Error string
-}
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
+			util.WriteJSON(w, http.StatusBadRequest, types.ApiError{Error: err.Error()})
 		}
 	}
 }

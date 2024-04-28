@@ -3,11 +3,13 @@ package main
 import (
 	"log"
 
+	"github.com/Narutchai01/ProjectC-BE/api"
+	"github.com/Narutchai01/ProjectC-BE/db"
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	store, err := NewPostGresStore()
+	store, err := db.NewPostGresStore()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -16,6 +18,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := NewAPIServer(":3000", store)
+	server := api.NewAPIServer(":3000", store)
 	server.Run()
 }

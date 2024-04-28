@@ -6,7 +6,6 @@ WORKDIR /app
 
 # Install Air for live reload
 RUN go install github.com/cosmtrek/air@latest
-RUN air init
 
 # Copy the Go module files
 COPY go.mod go.sum ./
@@ -24,4 +23,4 @@ RUN go build -o main .
 EXPOSE 8080
 
 # Set the command to run the Go application
-CMD ["./main"]
+CMD ["air", "-c", ".air.toml"]

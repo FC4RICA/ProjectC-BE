@@ -1,18 +1,19 @@
-package main
+package db
 
 import (
 	"database/sql"
 	"fmt"
 
+	"github.com/Narutchai01/ProjectC-BE/data"
 	_ "github.com/lib/pq"
 )
 
 type Storage interface {
-	CreateAccount(*Account) error
+	CreateAccount(*data.Account) error
 	DeleteAccount(int) error
-	UpdateAccount(*Account) error
-	GetAccountByID(int) (*Account, error)
-	GetAccounts() ([]*Account, error)
+	UpdateAccount(*data.Account) error
+	GetAccountByID(int) (*data.Account, error)
+	GetAccounts() ([]*data.Account, error)
 }
 
 type PostgresStore struct {
@@ -53,7 +54,7 @@ func (s *PostgresStore) CreateAccountTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateAccount(acc *Account) error {
+func (s *PostgresStore) CreateAccount(acc *data.Account) error {
 	query := `INSERT INTO Account 
 		(name, email, created_at)
 		VALUES ($1, $2, $3)`
@@ -71,7 +72,7 @@ func (s *PostgresStore) CreateAccount(acc *Account) error {
 	return nil
 }
 
-func (s *PostgresStore) UpdateAccount(*Account) error {
+func (s *PostgresStore) UpdateAccount(*data.Account) error {
 	return nil
 }
 
@@ -80,7 +81,7 @@ func (s *PostgresStore) DeleteAccount(id int) error {
 	return err
 }
 
-func (s *PostgresStore) GetAccountByID(id int) (*Account, error) {
+func (s *PostgresStore) GetAccountByID(id int) (*data.Account, error) {
 	rows, err := s.db.Query("SELECT * FROM Account WHERE user_id = $1", id)
 	if err != nil {
 		return nil, err
@@ -93,13 +94,13 @@ func (s *PostgresStore) GetAccountByID(id int) (*Account, error) {
 	return nil, fmt.Errorf("account %d not found", id)
 }
 
-func (s *PostgresStore) GetAccounts() ([]*Account, error) {
+func (s *PostgresStore) GetAccounts() ([]*data.Account, error) {
 	rows, err := s.db.Query("SELECT * FROM Account")
 	if err != nil {
 		return nil, err
 	}
 
-	accounts := []*Account{}
+	accounts := []*data.Account{}
 	for rows.Next() {
 		account, err := scanIntoAccount(rows)
 		if err != nil {
@@ -112,8 +113,8 @@ func (s *PostgresStore) GetAccounts() ([]*Account, error) {
 	return accounts, nil
 }
 
-func scanIntoAccount(rows *sql.Rows) (*Account, error) {
-	account := new(Account)
+func scanIntoAccount(rows *sql.Rows) (*data.Account, error) {
+	account := new(data.Account)
 	err := rows.Scan(
 		&account.ID,
 		&account.Name,

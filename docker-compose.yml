@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   app:
-    image: golang:1.19-alpine
+    image: golang:1.22-alpine
     container_name: my_golang
     build:  .
     restart : always
@@ -11,7 +11,7 @@ services:
 
 
   postgres:
-    image: postgres:latest
+    image: postgres:alpine 
     container_name: kmutt
     ports:
       - "5432:5432"
@@ -20,7 +20,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: kmutt
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./postgresdata:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4

@@ -4,6 +4,9 @@ FROM golang:1.22-alpine
 # Set the working directory to /app
 WORKDIR /app
 
+# Install Air for live reload
+RUN go install github.com/cosmtrek/air@latest
+
 # Copy the Go module files
 COPY go.mod go.sum ./
 
@@ -11,7 +14,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the Go source code
-COPY *.go ./
+COPY . .
 
 # Build the Go application
 RUN go build -o main .
@@ -20,4 +23,4 @@ RUN go build -o main .
 EXPOSE 8080
 
 # Set the command to run the Go application
-CMD ["./main"]
+CMD ["air", "-c", ".air.toml"]

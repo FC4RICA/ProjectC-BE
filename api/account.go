@@ -52,6 +52,11 @@ func (s *APIServer) handleRegister(w http.ResponseWriter, r *http.Request) error
 		return err
 	}
 
+	existAccount, _ := s.store.GetAccountByEmail(createAccountReq.Email)
+	if existAccount != nil {
+		return fmt.Errorf("email has already been taken")
+	}
+
 	account, err := data.NewAccount(createAccountReq.Name, createAccountReq.Email, createAccountReq.Password)
 	if err != nil {
 		return err

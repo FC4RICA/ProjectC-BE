@@ -9,11 +9,12 @@ import (
 )
 
 type Storage interface {
-	CreateAccount(*data.Account) error
+	CreateAccount(*data.Account) (int, error)
 	DeleteAccount(int) error
 	UpdateAccount(*data.Account) error
 	GetAccountByID(int) (*data.Account, error)
 	GetAccounts() ([]*data.Account, error)
+	GetAccountByEmail(string) (*data.Account, error)
 }
 
 type PostgresStore struct {
@@ -47,6 +48,7 @@ func (s *PostgresStore) CreateAccountTable() error {
 		user_id SERIAL PRIMARY KEY,
 		name varchar(100),
 		email varchar(100),
+		encrypted_password bpchar,
 		created_at timestamp
 	)`
 
@@ -54,22 +56,20 @@ func (s *PostgresStore) CreateAccountTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateAccount(acc *data.Account) error {
+func (s *PostgresStore) CreateAccount(acc *data.Account) (int, error) {
 	query := `INSERT INTO Account 
-		(name, email, created_at)
-		VALUES ($1, $2, $3)`
+		(name, email, encrypted_password, created_at)
+		VALUES ($1, $2, $3, $4) RETURNING user_id`
 
-	resp, err := s.db.Query(
+	id := 0
+	err := s.db.QueryRow(
 		query,
-		acc.Name, acc.Email, acc.CreatedAt)
-
+		acc.Name, acc.Email, acc.EncryptedPassword, acc.CreatedAt).Scan(&id)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	fmt.Println(resp)
-
-	return nil
+	return id, nil
 }
 
 func (s *PostgresStore) UpdateAccount(*data.Account) error {
@@ -92,6 +92,19 @@ func (s *PostgresStore) GetAccountByID(id int) (*data.Account, error) {
 	}
 
 	return nil, fmt.Errorf("account %d not found", id)
+}
+
+func (s *PostgresStore) GetAccountByEmail(email string) (*data.Account, error) {
+	rows, err := s.db.Query("SELECT * FROM Account WHERE email = $1", email)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		return scanIntoAccount(rows)
+	}
+
+	return nil, fmt.Errorf("account with email [%s] not found", email)
 }
 
 func (s *PostgresStore) GetAccounts() ([]*data.Account, error) {
@@ -119,6 +132,7 @@ func scanIntoAccount(rows *sql.Rows) (*data.Account, error) {
 		&account.ID,
 		&account.Name,
 		&account.Email,
+		&account.EncryptedPassword,
 		&account.CreatedAt)
 
 	return account, err

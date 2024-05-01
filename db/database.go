@@ -14,6 +14,9 @@ type Storage interface {
 	GetAccountByID(int) (*data.Account, error)
 	GetAccounts() ([]*data.Account, error)
 	GetAccountByEmail(string) (*data.Account, error)
+	CreateDisease(*data.Disease) (int, error)
+	GetDiseases() ([]*data.Disease, error)
+	GetDiseaseByID(int) (*data.Disease, error)
 }
 
 type PostgresStore struct {
@@ -39,15 +42,34 @@ func NewPostGresStore() (*PostgresStore, error) {
 }
 
 func (s *PostgresStore) Init() error {
-	return s.CreateAccountTable()
+	if err := s.createAccountTable(); err != nil {
+		return err
+	}
+	if err := s.createDiseaseTable(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *PostgresStore) CreateAccountTable() error {
+func (s *PostgresStore) createAccountTable() error {
 	query := `CREATE TABLE IF NOT EXISTS Account (
 		user_id SERIAL PRIMARY KEY,
 		name varchar(100),
 		email varchar(100),
 		encrypted_password bpchar,
+		created_at timestamp
+	)`
+
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) createDiseaseTable() error {
+	query := `CREATE TABLE IF NOT EXISTS Disease (
+		disease_id SERIAL PRIMARY KEY,
+		disease_name varchar(100),
+		plant_name varchar(100),
+		description JSONB,
 		created_at timestamp
 	)`
 

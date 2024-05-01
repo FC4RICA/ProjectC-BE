@@ -12,7 +12,7 @@ func (s *PostgresStore) CreateAccount(acc *data.Account) (int, error) {
 		(name, email, encrypted_password, created_at)
 		VALUES ($1, $2, $3, $4) RETURNING user_id`
 
-	id := 0
+	var id int
 	err := s.db.QueryRow(
 		query,
 		acc.Name, acc.Email, acc.EncryptedPassword, acc.CreatedAt).Scan(&id)

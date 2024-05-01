@@ -20,8 +20,9 @@ func PermissionDenied(w http.ResponseWriter) {
 	WriteJSON(w, http.StatusForbidden, types.ApiError{Error: "permission denied"})
 }
 
-func GetID(r *http.Request) (int, error) {
-	idStr := mux.Vars(r)["id"]
+func GetID(r *http.Request, s string) (int, error) {
+	idR := s + "-id"
+	idStr := mux.Vars(r)[idR]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return id, fmt.Errorf("invalid id given %s", idStr)

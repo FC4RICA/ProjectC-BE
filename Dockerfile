@@ -20,7 +20,7 @@ COPY . .
 RUN go build -o main .
 
 # Expose the port that the Go application will run on
-EXPOSE 8080
+EXPOSE 3000
 
 # Set the command to run the Go application
-CMD ["air", "-c", ".air.toml"]
+CMD ["./main"]

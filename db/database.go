@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/Narutchai01/ProjectC-BE/data"
 	_ "github.com/lib/pq"
@@ -15,6 +14,9 @@ type Storage interface {
 	GetAccountByID(int) (*data.Account, error)
 	GetAccounts() ([]*data.Account, error)
 	GetAccountByEmail(string) (*data.Account, error)
+	CreateDisease(*data.Disease) (int, error)
+	GetDiseases() ([]*data.Disease, error)
+	GetDiseaseByID(int) (*data.Disease, error)
 }
 
 type PostgresStore struct {
@@ -40,10 +42,16 @@ func NewPostGresStore() (*PostgresStore, error) {
 }
 
 func (s *PostgresStore) Init() error {
-	return s.CreateAccountTable()
+	if err := s.createAccountTable(); err != nil {
+		return err
+	}
+	if err := s.createDiseaseTable(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *PostgresStore) CreateAccountTable() error {
+func (s *PostgresStore) createAccountTable() error {
 	query := `CREATE TABLE IF NOT EXISTS Account (
 		user_id SERIAL PRIMARY KEY,
 		name varchar(100),
@@ -56,84 +64,15 @@ func (s *PostgresStore) CreateAccountTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateAccount(acc *data.Account) (int, error) {
-	query := `INSERT INTO Account 
-		(name, email, encrypted_password, created_at)
-		VALUES ($1, $2, $3, $4) RETURNING user_id`
+func (s *PostgresStore) createDiseaseTable() error {
+	query := `CREATE TABLE IF NOT EXISTS Disease (
+		disease_id SERIAL PRIMARY KEY,
+		disease_name varchar(100),
+		plant_name varchar(100),
+		description JSONB,
+		created_at timestamp
+	)`
 
-	id := 0
-	err := s.db.QueryRow(
-		query,
-		acc.Name, acc.Email, acc.EncryptedPassword, acc.CreatedAt).Scan(&id)
-	if err != nil {
-		return -1, err
-	}
-
-	return id, nil
-}
-
-func (s *PostgresStore) UpdateAccount(*data.Account) error {
-	return nil
-}
-
-func (s *PostgresStore) DeleteAccount(id int) error {
-	_, err := s.db.Query("DELETE FROM Account WHERE user_id = $1", id)
+	_, err := s.db.Exec(query)
 	return err
-}
-
-func (s *PostgresStore) GetAccountByID(id int) (*data.Account, error) {
-	rows, err := s.db.Query("SELECT * FROM Account WHERE user_id = $1", id)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		return scanIntoAccount(rows)
-	}
-
-	return nil, fmt.Errorf("account %d not found", id)
-}
-
-func (s *PostgresStore) GetAccountByEmail(email string) (*data.Account, error) {
-	rows, err := s.db.Query("SELECT * FROM Account WHERE email = $1", email)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		return scanIntoAccount(rows)
-	}
-
-	return nil, fmt.Errorf("account with email [%s] not found", email)
-}
-
-func (s *PostgresStore) GetAccounts() ([]*data.Account, error) {
-	rows, err := s.db.Query("SELECT * FROM Account")
-	if err != nil {
-		return nil, err
-	}
-
-	accounts := []*data.Account{}
-	for rows.Next() {
-		account, err := scanIntoAccount(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		accounts = append(accounts, account)
-	}
-
-	return accounts, nil
-}
-
-func scanIntoAccount(rows *sql.Rows) (*data.Account, error) {
-	account := new(data.Account)
-	err := rows.Scan(
-		&account.ID,
-		&account.Name,
-		&account.Email,
-		&account.EncryptedPassword,
-		&account.CreatedAt)
-
-	return account, err
 }

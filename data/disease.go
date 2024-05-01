@@ -3,8 +3,12 @@ package data
 import "time"
 
 type Disease struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Discription string    `json:"discription"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          int         `json:"id"`
+	DiseaseName string      `json:"disease_name"`
+	PlantName   string      `json:"plant_name"`
+	Discription Discription `json:"discription"`
+	CreatedAt   time.Time   `json:"created_at"`
+}
+
+type Discription struct {
 }

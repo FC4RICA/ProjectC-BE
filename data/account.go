@@ -22,6 +22,13 @@ type CreateAccountRequest struct {
 	Password string `json:"password"`
 }
 
+type UpdateAccountRequest struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type Account struct {
 	ID                int       `json:"id"`
 	Name              string    `json:"name"`
@@ -30,17 +37,25 @@ type Account struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-func NewAccount(name, email, password string) (*Account, error) {
-	encpw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func NewAccount(account *CreateAccountRequest) (*Account, error) {
+	encpw, err := EncrptPassword(account.Password)
 	if err != nil {
 		return nil, err
 	}
 	return &Account{
-		Name:              name,
-		Email:             email,
+		Name:              account.Name,
+		Email:             account.Email,
 		EncryptedPassword: string(encpw),
 		CreatedAt:         time.Now().UTC(),
 	}, nil
+}
+
+func EncrptPassword(password string) (string, error) {
+	encpw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(encpw), nil
 }
 
 func (a *Account) ValidPassword(password string) bool {

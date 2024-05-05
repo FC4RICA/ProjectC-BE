@@ -57,7 +57,7 @@ func (s *APIServer) handleRegister(w http.ResponseWriter, r *http.Request) error
 		return fmt.Errorf("email has already been taken")
 	}
 
-	account, err := data.NewAccount(createAccountReq.Name, createAccountReq.Email, createAccountReq.Password)
+	account, err := data.NewAccount(createAccountReq)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	account, err := data.NewAccount(createAccountReq.Name, createAccountReq.Email, createAccountReq.Password)
+	account, err := data.NewAccount(createAccountReq)
 	if err != nil {
 		return err
 	}
@@ -161,5 +161,39 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *APIServer) handleUpdateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	id, err := util.GetID(r, "user")
+	if err != nil {
+		return err
+	}
+
+	updateAccountReq := new(data.UpdateAccountRequest)
+	if err := json.NewDecoder(r.Body).Decode(updateAccountReq); err != nil {
+		return err
+	}
+	updateAccountReq.ID = id
+
+	account, err := s.store.GetAccountByID(id)
+	if err != nil {
+		return err
+	}
+
+	if updateAccountReq.Name != "" {
+		account.Name = updateAccountReq.Name
+	}
+	if updateAccountReq.Email != "" {
+		account.Email = updateAccountReq.Email
+	}
+	if updateAccountReq.Password != "" {
+		encpw, err := data.EncrptPassword(updateAccountReq.Password)
+		if err != nil {
+			return err
+		}
+		account.EncryptedPassword = string(encpw)
+	}
+	err = s.store.UpdateAccount(account)
+	if err != nil {
+		return err
+	}
+
+	return util.WriteJSON(w, http.StatusOK, account)
 }

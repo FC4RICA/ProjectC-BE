@@ -23,8 +23,13 @@ func (s *PostgresStore) CreateAccount(acc *data.Account) (int, error) {
 	return id, nil
 }
 
-func (s *PostgresStore) UpdateAccount(*data.Account) error {
-	return nil
+func (s *PostgresStore) UpdateAccount(acc *data.Account) error {
+	query := `UPDATE Account 
+		SET name = $2, email = $3, encrypted_password = $4 
+		WHERE user_id = $1`
+
+	_, err := s.db.Query(query, acc.ID, acc.Name, acc.Email, acc.EncryptedPassword)
+	return err
 }
 
 func (s *PostgresStore) DeleteAccount(id int) error {

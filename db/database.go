@@ -48,16 +48,22 @@ func (s *PostgresStore) Init() error {
 	if err := s.createDiseaseTable(); err != nil {
 		return err
 	}
+	if err := s.createPredictResultTable(); err != nil {
+		return err
+	}
+	if err := s.createImageTable(); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s *PostgresStore) createAccountTable() error {
 	query := `CREATE TABLE IF NOT EXISTS Account (
 		user_id SERIAL PRIMARY KEY,
-		name varchar(100),
-		email varchar(100),
-		encrypted_password bpchar,
-		created_at timestamp
+		name varchar(100) NOT NULL,
+		email varchar(100) UNIQUE NOT NULL,
+		encrypted_password bpchar NOT NULL,
+		created_at timestamp NOT NULL
 	)`
 
 	_, err := s.db.Exec(query)
@@ -67,10 +73,35 @@ func (s *PostgresStore) createAccountTable() error {
 func (s *PostgresStore) createDiseaseTable() error {
 	query := `CREATE TABLE IF NOT EXISTS Disease (
 		disease_id SERIAL PRIMARY KEY,
-		disease_name varchar(100),
-		plant_name varchar(100),
-		description JSONB,
-		created_at timestamp
+		disease_name varchar(100) UNIQUE NOT NULL,
+		plant_name varchar(100) NOT NULL,
+		description JSONB NOT NULL,
+		created_at timestamp NOT NULL
+	)`
+
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) createPredictResultTable() error {
+	query := `CREATE TABLE IF NOT EXISTS PredictResult (
+		result_id SERIAL PRIMARY KEY,
+		user_id INTEGER REFERENCES Account(user_id) NOT NULL,
+		disease_id INTEGER REFERENCES Disease(disease_id),
+		predict_result BOOLEAN NOT NULL,
+		created_at timestamp NOT NULL
+	)`
+
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) createImageTable() error {
+	query := `CREATE TABLE IF NOT EXISTS Image (
+		image_id SERIAL PRIMARY KEY,
+		result_id INTEGER REFERENCES PredictResult(result_id) NOT NULL,
+		image_url TEXT NOT NULL,
+		created_at timestamp NOT NULL
 	)`
 
 	_, err := s.db.Exec(query)

@@ -24,3 +24,4 @@ postgresdata
 .air.toml
 tmp
 .env
+*.json

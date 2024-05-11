@@ -61,6 +61,19 @@ func (s *PostgresStore) GetDiseaseByID(id int) (*data.Disease, error) {
 	return nil, fmt.Errorf("disease %d not found", id)
 }
 
+func (s *PostgresStore) GetDiseaseByName(plantName, diseaseName string) (*data.Disease, error) {
+	rows, err := s.db.Query("SELECT * FROM Disease WHERE plant_name = $1, disease_name = $2", plantName, diseaseName)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		return scanIntoDisease(rows)
+	}
+
+	return nil, fmt.Errorf("disease %s %s not found", plantName, diseaseName)
+}
+
 func scanIntoDisease(rows *sql.Rows) (*data.Disease, error) {
 	disease := new(data.Disease)
 	var bs []uint8

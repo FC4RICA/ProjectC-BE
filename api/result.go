@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -31,28 +30,42 @@ func (s *APIServer) handleResultByID(w http.ResponseWriter, r *http.Request) err
 
 func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) error {
 	createResultReq := new(data.CreateResultRequest)
-	if err := json.NewDecoder(r.Body).Decode(createResultReq); err != nil {
-		return err
-	}
-
 	userid, err := util.GetID(r, "user")
 	if err != nil {
 		return err
 	}
 	createResultReq.UserID = userid
 
-	//NewImage()
+	createResultReq.Images, err = data.UploadImages(r)
+	if err != nil {
+		return err
+	}
 
 	result, err := data.NewResult(createResultReq)
 	if err != nil {
 		return err
 	}
 
-	id, err := s.store.CreateResult(result)
+	result.ID, err = s.store.CreateResult(result)
 	if err != nil {
 		return err
 	}
-	result.ID = id
+
+	for _, imageURL := range createResultReq.Images {
+		createImageReq := &data.CreateImageRequest{
+			ResultID: result.ID,
+			ImageURL: imageURL,
+		}
+		image, err := data.NewImage(createImageReq)
+		if err != nil {
+			return err
+		}
+
+		_, err = s.store.CreateImage(image)
+		if err != nil {
+			return err
+		}
+	}
 
 	return util.WriteJSON(w, http.StatusOK, result)
 }

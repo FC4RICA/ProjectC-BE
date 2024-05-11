@@ -151,11 +151,11 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		return err
 	}
-	id, err := s.store.CreateAccount(account)
+
+	account.ID, err = s.store.CreateAccount(account)
 	if err != nil {
 		return err
 	}
-	account.ID = id
 
 	return util.WriteJSON(w, http.StatusOK, account)
 }

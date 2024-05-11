@@ -1,12 +1,15 @@
 package data
 
 import (
+	"net/http"
 	"time"
+
+	"github.com/Narutchai01/ProjectC-BE/util"
 )
 
 type CreateImageRequest struct {
-	ResultID    int    `json:"result_id"`
-	ImageBase64 string `json:"image_base64"`
+	ResultID int    `json:"result_id"`
+	ImageURL string `json:"image_url"`
 }
 
 type Image struct {
@@ -17,10 +20,35 @@ type Image struct {
 }
 
 func NewImage(image *CreateImageRequest) (*Image, error) {
-	//upload img to firebase
 	return &Image{
 		ResultID:  image.ResultID,
-		ImageURL:  "",
+		ImageURL:  image.ImageURL,
 		CreatedAt: time.Now().UTC(),
 	}, nil
+}
+
+func UploadImages(r *http.Request) ([]string, error) {
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+	if err != nil {
+		return nil, err
+	}
+
+	files := r.MultipartForm.File["images"]
+	images := []string{}
+
+	for _, file := range files {
+		fileHeader, err := file.Open()
+		if err != nil {
+			return nil, err
+		}
+		defer fileHeader.Close()
+
+		imageURL, err := util.UploadImageCDN(fileHeader, file.Filename)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, imageURL)
+	}
+
+	return images, nil
 }

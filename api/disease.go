@@ -39,11 +39,10 @@ func (s *APIServer) handleCreateDisease(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	id, err := s.store.CreateDisease(disease)
+	disease.ID, err = s.store.CreateDisease(disease)
 	if err != nil {
 		return err
 	}
-	disease.ID = id
 
 	return util.WriteJSON(w, http.StatusOK, disease)
 }

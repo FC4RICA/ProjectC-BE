@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -39,7 +38,7 @@ func GetID(r *http.Request, s string) (int, error) {
 	return id, nil
 }
 
-func Uploadv2(file multipart.File, fileName string) string {
+func UploadImageCDN(file multipart.File, fileName string) (string, error) {
 	ctx := context.Background()
 	opt := option.WithCredentialsFile("./serviceAccountKey.json")
 	config := &firebase.Config{
@@ -47,26 +46,26 @@ func Uploadv2(file multipart.File, fileName string) string {
 	}
 	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {
-		log.Fatalf(err.Error())
+		return "", err
 	}
 	storage, err := app.Storage(ctx)
 	if err != nil {
-		log.Fatalf(err.Error())
+		return "", err
 	}
 	bucket, err := storage.DefaultBucket()
 	if err != nil {
-		log.Fatalf(err.Error())
+		return "", err
 	}
 	object := bucket.Object("image/" + uuid.NewString() + fileName)
 	wc := object.NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		log.Fatalf(err.Error())
+		return "", err
 	}
 	if err := wc.Close(); err != nil {
-		log.Fatalf(err.Error())
+		return "", err
 	}
 	Name := strings.ReplaceAll(wc.Attrs().Name, "/", "%2F")
 	url := "https://firebasestorage.googleapis.com/v0/b/pathfinder-bd7e8.appspot.com/o/" + Name + "?alt=media&token"
 
-	return url
+	return url, nil
 }

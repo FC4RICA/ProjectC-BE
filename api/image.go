@@ -1,28 +1,34 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/Narutchai01/ProjectC-BE/data"
 	"github.com/Narutchai01/ProjectC-BE/util"
 )
 
 func (s *APIServer) handleCreateImage(w http.ResponseWriter, r *http.Request) error {
-	CreateImageReq := new(data.CreateImageRequest)
-	if err := json.NewDecoder(r.Body).Decode(CreateImageReq); err != nil {
-		return err
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 
-	image, err := data.NewImage(CreateImageReq)
+	err := r.ParseMultipartForm(10 << 20) // 10 MB limit
 	if err != nil {
-		return err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	id, err := s.store.CreateImage(image)
-	if err != nil {
-		return err
-	}
-	image.ID = id
 
-	return util.WriteJSON(w, http.StatusOK, image)
+	files := r.MultipartForm.File["images"]
+	imageARR := []string{}
+
+	for _, file := range files {
+		fileHeader, err := file.Open()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		defer fileHeader.Close()
+
+		imageARR = append(imageARR, util.Uploadv2(fileHeader, file.Filename))
+	}
+
+	return util.WriteJSON(w, http.StatusOK, imageARR)
+
 }

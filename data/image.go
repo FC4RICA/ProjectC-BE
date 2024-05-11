@@ -16,7 +16,7 @@ type Image struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func NewImage(image CreateImageRequest) (*Image, error) {
+func NewImage(image *CreateImageRequest) (*Image, error) {
 
 	return &Image{
 		ResultID:  image.ResultID,

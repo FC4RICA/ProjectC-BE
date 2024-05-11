@@ -1,8 +1,12 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/Narutchai01/ProjectC-BE/data"
+	"github.com/Narutchai01/ProjectC-BE/util"
 )
 
 func (s *APIServer) handleResult(w http.ResponseWriter, r *http.Request) error {
@@ -26,7 +30,23 @@ func (s *APIServer) handleResultByID(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	createResultReq := new(data.CreateResultRequest)
+	if err := json.NewDecoder(r.Body).Decode(createResultReq); err != nil {
+		return err
+	}
+
+	result, err := data.NewResult(createResultReq)
+	if err != nil {
+		return err
+	}
+
+	id, err := s.store.CreateResult(result)
+	if err != nil {
+		return err
+	}
+	result.ID = id
+
+	return util.WriteJSON(w, http.StatusOK, result)
 }
 
 func (s *APIServer) handleGetResultByID(w http.ResponseWriter, r *http.Request) error {

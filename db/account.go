@@ -17,7 +17,7 @@ func (s *PostgresStore) CreateAccount(acc *data.Account) (int, error) {
 		query,
 		acc.Name, acc.Email, acc.EncryptedPassword, acc.CreatedAt).Scan(&id)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	return id, nil

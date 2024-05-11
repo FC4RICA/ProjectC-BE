@@ -23,7 +23,7 @@ func (s *PostgresStore) CreateDisease(dis *data.Disease) (int, error) {
 		query,
 		dis.DiseaseName, dis.PlantName, bs, dis.CreatedAt).Scan(&id)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	return id, nil

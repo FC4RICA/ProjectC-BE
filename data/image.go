@@ -16,10 +16,11 @@ type Image struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func NewImage(image CreateImageRequest) (*Image, error) {
-
+func NewImage(image *CreateImageRequest) (*Image, error) {
+	//upload img to firebase
 	return &Image{
 		ResultID:  image.ResultID,
+		ImageURL:  "",
 		CreatedAt: time.Now().UTC(),
 	}, nil
 }

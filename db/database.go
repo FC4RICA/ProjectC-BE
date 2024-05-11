@@ -17,6 +17,11 @@ type Storage interface {
 	CreateDisease(*data.Disease) (int, error)
 	GetDiseases() ([]*data.Disease, error)
 	GetDiseaseByID(int) (*data.Disease, error)
+	CreateImage(*data.Image) (int, error)
+	GetImages() ([]*data.Image, error)
+	GetImageByID(int) (*data.Image, error)
+	DeleteImage(int) error
+	CreateResult(*data.Result) (int, error)
 }
 
 type PostgresStore struct {

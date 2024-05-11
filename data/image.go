@@ -17,9 +17,10 @@ type Image struct {
 }
 
 func NewImage(image *CreateImageRequest) (*Image, error) {
-
+	//upload img to firebase
 	return &Image{
 		ResultID:  image.ResultID,
+		ImageURL:  "",
 		CreatedAt: time.Now().UTC(),
 	}, nil
 }

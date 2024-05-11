@@ -35,6 +35,14 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 
+	userid, err := util.GetID(r, "user")
+	if err != nil {
+		return err
+	}
+	createResultReq.UserID = userid
+
+	//NewImage()
+
 	result, err := data.NewResult(createResultReq)
 	if err != nil {
 		return err

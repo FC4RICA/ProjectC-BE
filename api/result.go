@@ -13,17 +13,7 @@ func (s *APIServer) handleResult(w http.ResponseWriter, r *http.Request) error {
 		return s.handleCreateResult(w, r)
 	}
 	if r.Method == "GET" {
-		return s.handleGetResults(w, r)
-	}
-	return fmt.Errorf("method not allowed %s", r.Method)
-}
-
-func (s *APIServer) handleResultByID(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		return s.handleGetResultByID(w, r)
-	}
-	if r.Method == "DELETE" {
-		return s.handleDeleteResult(w, r)
+		return s.handleGetResultsByUserID(w, r)
 	}
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
@@ -70,14 +60,38 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 	return util.WriteJSON(w, http.StatusOK, result)
 }
 
+func (s *APIServer) handleGetResultsByUserID(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return fmt.Errorf("method not allowed %s", r.Method)
+	}
+
+	id, err := util.GetID(r, "user")
+	if err != nil {
+		return err
+	}
+
+	results, err := s.store.GetResultsByUserID(id)
+	if err != nil {
+		return err
+	}
+
+	return util.WriteJSON(w, http.StatusOK, results)
+}
+
 func (s *APIServer) handleGetResultByID(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
+	if r.Method != "GET" {
+		return fmt.Errorf("method not allowed %s", r.Method)
+	}
 
-func (s *APIServer) handleDeleteResult(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
+	id, err := util.GetID(r, "result")
+	if err != nil {
+		return err
+	}
 
-func (s *APIServer) handleGetResults(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	result, err := s.store.GetResultByID(id)
+	if err != nil {
+		return err
+	}
+
+	return util.WriteJSON(w, http.StatusOK, result)
 }

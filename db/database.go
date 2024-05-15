@@ -22,6 +22,9 @@ type Storage interface {
 	GetImageByID(int) (*data.Image, error)
 	DeleteImage(int) error
 	CreateResult(*data.Result) (int, error)
+	GetResults() ([]*data.Result, error)
+	GetResultByID(int) (*data.Result, error)
+	GetResultsByUserID(int) ([]*data.Result, error)
 }
 
 type PostgresStore struct {

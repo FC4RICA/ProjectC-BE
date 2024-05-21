@@ -33,7 +33,7 @@ type PostgresStore struct {
 }
 
 func NewPostGresStore() (*PostgresStore, error) {
-	connStr := "host=" + os.Getenv("DBHOST") + " user=" + os.Getenv("DBUSER") + " password=" + os.Getenv("DBPASSWORD") + " dbname=" + os.Getenv("DBNAME") + " sslmode=disable"
+	connStr := "host=" + os.Getenv("DBHOST") + " port=" + os.Getenv("DBPORT") + " user=" + os.Getenv("DBUSER") + " password=" + os.Getenv("DBPASSWORD") + " dbname=" + os.Getenv("DBNAME") + " sslmode=disable"
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

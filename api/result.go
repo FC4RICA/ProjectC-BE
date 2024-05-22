@@ -63,7 +63,19 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 
-	fmt.Println(predictRes)
+	fmt.Println(predictRes.DiseaseName, predictRes.PlantName)
+	if predictRes.DiseaseName == "healty" {
+		createResultReq.PredictResult = false
+	} else {
+		createResultReq.PredictResult = true
+	}
+
+	disease, err := s.store.GetDiseaseByName(predictRes.PlantName, predictRes.DiseaseName)
+	if err != nil {
+		return err
+	}
+
+	createResultReq.DiseaseID = disease.ID
 
 	result, err := data.NewResult(createResultReq)
 	if err != nil {

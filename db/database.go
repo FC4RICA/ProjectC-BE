@@ -18,6 +18,7 @@ type Storage interface {
 	CreateDisease(*data.Disease) (int, error)
 	GetDiseases() ([]*data.Disease, error)
 	GetDiseaseByID(int) (*data.Disease, error)
+	GetDiseaseByName(string, string) (*data.Result, error)
 	CreateImage(*data.Image) (int, error)
 	GetImages() ([]*data.Image, error)
 	GetImageByID(int) (*data.Image, error)

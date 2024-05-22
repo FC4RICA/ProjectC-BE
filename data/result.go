@@ -5,8 +5,9 @@ import (
 )
 
 type CreateResultRequest struct {
-	UserID int      `json:"user_id"`
-	Images []string `json:"images"`
+	UserID        int  `json:"user_id"`
+	DiseaseID     int  `json:"disease_id"`
+	PredictResult bool `json:"predict_result"`
 }
 
 type Result struct {
@@ -17,14 +18,16 @@ type Result struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
+type PredictResponse struct {
+	PlantName   string `json:"plant_name"`
+	DiseaseName string `json:"disease_name"`
+}
+
 func NewResult(result *CreateResultRequest) (*Result, error) {
-	// call ai api
-	diseaseID := 0
-	predictResult := false
 	return &Result{
 		UserID:        result.UserID,
-		DiseaseID:     diseaseID,
-		PredictResult: predictResult,
+		DiseaseID:     result.DiseaseID,
+		PredictResult: result.PredictResult,
 		CreatedAt:     time.Now().UTC(),
 	}, nil
 }

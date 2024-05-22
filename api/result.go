@@ -1,8 +1,11 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/Narutchai01/ProjectC-BE/data"
 	"github.com/Narutchai01/ProjectC-BE/util"
@@ -26,10 +29,41 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 	}
 	createResultReq.UserID = userid
 
-	createResultReq.Images, err = data.UploadImages(r)
+	imagesURL, err := data.UploadImages(r)
 	if err != nil {
 		return err
 	}
+
+	imagesJson, err := json.Marshal(imagesURL)
+	if err != nil {
+		return err
+	}
+	body := []byte(fmt.Sprintf(`{
+		"imageArr": %s
+		}`, string(imagesJson)))
+
+	req, err := http.NewRequest(http.MethodPost, os.Getenv("AI_API"), bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println("do req error")
+		return err
+	}
+	defer res.Body.Close()
+
+	predictRes := &data.PredictResponse{}
+	err = json.NewDecoder(res.Body).Decode(predictRes)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(predictRes)
 
 	result, err := data.NewResult(createResultReq)
 	if err != nil {
@@ -41,7 +75,7 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 
-	for _, imageURL := range createResultReq.Images {
+	for _, imageURL := range imagesURL {
 		createImageReq := &data.CreateImageRequest{
 			ResultID: result.ID,
 			ImageURL: imageURL,

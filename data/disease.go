@@ -18,6 +18,10 @@ type CreateDiseaseRequest struct {
 	Description map[string]interface{} `json:"description"`
 }
 
+type CreateDiseasesRequest struct {
+	Diseases []*CreateDiseaseRequest `json:"diseases"`
+}
+
 func NewDisease(disease *CreateDiseaseRequest) (*Disease, error) {
 	return &Disease{
 		DiseaseName: disease.DiseaseName,

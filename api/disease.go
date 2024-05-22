@@ -47,6 +47,31 @@ func (s *APIServer) handleCreateDisease(w http.ResponseWriter, r *http.Request) 
 	return util.WriteJSON(w, http.StatusOK, disease)
 }
 
+func (s *APIServer) handleCreateDiseases(w http.ResponseWriter, r *http.Request) error {
+	createDiseasesReq := new(data.CreateDiseasesRequest)
+	if err := json.NewDecoder(r.Body).Decode(createDiseasesReq); err != nil {
+		return err
+	}
+
+	diseases := []data.Disease{}
+
+	for _, createDiseaseReq := range createDiseasesReq.Diseases {
+		disease, err := data.NewDisease(createDiseaseReq)
+		if err != nil {
+			return err
+		}
+
+		disease.ID, err = s.store.CreateDisease(disease)
+		if err != nil {
+			return err
+		}
+
+		diseases = append(diseases, *disease)
+	}
+
+	return util.WriteJSON(w, http.StatusOK, diseases)
+}
+
 func (s *APIServer) handleGetDiseases(w http.ResponseWriter, r *http.Request) error {
 	diseases, err := s.store.GetDiseases()
 	if err != nil {

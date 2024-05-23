@@ -19,8 +19,8 @@ type Result struct {
 }
 
 type PredictResponse struct {
-	PlantName   string `json:"NamePlant"`
-	DiseaseName string `json:"NameDisease"`
+	PlantName   string `json:"plantname"`
+	DiseaseName string `json:"diseasename"`
 }
 
 func NewResult(result *CreateResultRequest) (*Result, error) {

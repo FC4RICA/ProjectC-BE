@@ -28,6 +28,7 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 	createResultReq.UserID = userid
+	createResultReq.PlantDisease = new(data.PlantDisease)
 
 	imagesURL, err := data.UploadImages(r)
 	if err != nil {

@@ -56,7 +56,7 @@ func (s *PostgresStore) GetPlantDiseases() ([]*data.PlantDisease, error) {
 }
 
 func (s *PostgresStore) GetPlantDiseaseByID(plantID, diseaseID int) (*data.PlantDisease, error) {
-	rows, err := s.db.Query("SELECT * FROM Disease WHERE plant_id = $1 AND disease_id = $2", plantID, diseaseID)
+	rows, err := s.db.Query("SELECT * FROM PlantDisease WHERE plant_id = $1 AND disease_id = $2", plantID, diseaseID)
 	if err != nil {
 		return nil, err
 	}

@@ -5,17 +5,15 @@ import (
 )
 
 type CreateResultRequest struct {
-	UserID        int  `json:"user_id"`
-	DiseaseID     int  `json:"disease_id"`
-	PredictResult bool `json:"predict_result"`
+	UserID       int           `json:"user_id"`
+	PlantDisease *PlantDisease `json:"disease_id"`
 }
 
 type Result struct {
-	ID            int       `json:"id"`
-	UserID        int       `json:"user_id"`
-	DiseaseID     int       `json:"disease_id"`
-	PredictResult bool      `json:"predict_result"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID           int           `json:"id"`
+	UserID       int           `json:"user_id"`
+	PlantDisease *PlantDisease `json:"disease_id"`
+	CreatedAt    time.Time     `json:"created_at"`
 }
 
 type PredictResponse struct {
@@ -25,9 +23,8 @@ type PredictResponse struct {
 
 func NewResult(result *CreateResultRequest) (*Result, error) {
 	return &Result{
-		UserID:        result.UserID,
-		DiseaseID:     result.DiseaseID,
-		PredictResult: result.PredictResult,
-		CreatedAt:     time.Now().UTC(),
+		UserID:       result.UserID,
+		PlantDisease: result.PlantDisease,
+		CreatedAt:    time.Now().UTC(),
 	}, nil
 }

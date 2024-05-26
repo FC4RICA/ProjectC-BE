@@ -52,7 +52,6 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println("do req error")
 		return err
 	}
 	defer res.Body.Close()
@@ -63,19 +62,18 @@ func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 
-	fmt.Println(predictRes.DiseaseName, predictRes.PlantName)
-	if predictRes.DiseaseName == "healty" {
-		createResultReq.PredictResult = false
-	} else {
-		createResultReq.PredictResult = true
-	}
-
-	disease, err := s.store.GetDiseaseByName(predictRes.PlantName, predictRes.DiseaseName)
+	createResultReq.PlantDisease.Plant, err = s.store.GetPlantByName(predictRes.PlantName)
 	if err != nil {
 		return err
 	}
-
-	createResultReq.DiseaseID = disease.ID
+	createResultReq.PlantDisease.Disease, err = s.store.GetDiseaseByName(predictRes.DiseaseName)
+	if err != nil {
+		return err
+	}
+	createResultReq.PlantDisease, err = s.store.GetPlantDiseaseByID(createResultReq.PlantDisease.Plant.ID, createResultReq.PlantDisease.Disease.ID)
+	if err != nil {
+		return err
+	}
 
 	result, err := data.NewResult(createResultReq)
 	if err != nil {

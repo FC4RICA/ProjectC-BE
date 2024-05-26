@@ -9,13 +9,13 @@ import (
 
 func (s *PostgresStore) CreateResult(result *data.Result) (int, error) {
 	query := `INSERT INTO PredictResult
-		(user_id, disease_id, predict_result, created_at)
+		(user_id, plant_id, disease_id, created_at)
 		VALUES ($1, $2, $3, $4) RETURNING result_id`
 
 	var id int
 	err := s.db.QueryRow(
 		query,
-		result.UserID, result.DiseaseID, result.PredictResult, result.CreatedAt).Scan(&id)
+		result.UserID, result.PlantDisease.Plant.ID, result.PlantDisease.Disease.ID, result.CreatedAt).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -79,8 +79,8 @@ func scanIntoResult(rows *sql.Rows) (*data.Result, error) {
 	err := rows.Scan(
 		&result.ID,
 		&result.UserID,
-		&result.DiseaseID,
-		&result.PredictResult,
+		&result.PlantDisease.Plant.ID,
+		&result.PlantDisease.Disease.ID,
 		&result.CreatedAt)
 
 	return result, err

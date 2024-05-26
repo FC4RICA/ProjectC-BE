@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"os"
+	"time"
 
 	"github.com/Narutchai01/ProjectC-BE/data"
 	_ "github.com/lib/pq"
@@ -15,14 +16,22 @@ type Storage interface {
 	GetAccountByID(int) (*data.Account, error)
 	GetAccounts() ([]*data.Account, error)
 	GetAccountByEmail(string) (*data.Account, error)
-	CreateDisease(*data.Disease) (int, error)
-	GetDiseases() ([]*data.Disease, error)
+
+	CreatePlant(*data.Plant) (int, time.Time, error)
+	GetPlantByName(string) (*data.Plant, error)
+	GetPlantByID(int) (*data.Plant, error)
+	CreateDisease(*data.Disease) (int, time.Time, error)
+	GetDiseaseByName(string) (*data.Disease, error)
 	GetDiseaseByID(int) (*data.Disease, error)
-	GetDiseaseByName(string, string) (*data.Disease, error)
+	CreatePlantDisease(*data.PlantDisease) error
+	GetPlantDiseases() ([]*data.PlantDisease, error)
+	GetPlantDiseaseByID(int, int) (*data.PlantDisease, error)
+
 	CreateImage(*data.Image) (int, error)
 	GetImages() ([]*data.Image, error)
 	GetImageByID(int) (*data.Image, error)
 	DeleteImage(int) error
+
 	CreateResult(*data.Result) (int, error)
 	GetResults() ([]*data.Result, error)
 	GetResultByID(int) (*data.Result, error)
@@ -58,6 +67,12 @@ func (s *PostgresStore) Init() error {
 	if err := s.createDiseaseTable(); err != nil {
 		return err
 	}
+	if err := s.createPlantTable(); err != nil {
+		return err
+	}
+	if err := s.createPlantDiseaseTable(); err != nil {
+		return err
+	}
 	if err := s.createPredictResultTable(); err != nil {
 		return err
 	}
@@ -83,10 +98,32 @@ func (s *PostgresStore) createAccountTable() error {
 func (s *PostgresStore) createDiseaseTable() error {
 	query := `CREATE TABLE IF NOT EXISTS Disease (
 		disease_id SERIAL PRIMARY KEY,
-		disease_name varchar(100) UNIQUE NOT NULL,
-		plant_name varchar(100) NOT NULL,
-		description JSONB NOT NULL,
+		disease_name varchar(100) UNIQUE NOT NULL UNIQUE,
 		created_at timestamp NOT NULL
+	)`
+
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) createPlantTable() error {
+	query := `CREATE TABLE IF NOT EXISTS Plant (
+		plant_id SERIAL PRIMARY KEY,
+		plant_name varchar(100) NOT NULL UNIQUE,
+		created_at timestamp NOT NULL
+	)`
+
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) createPlantDiseaseTable() error {
+	query := `CREATE TABLE IF NOT EXISTS PlantDisease (
+		plant_id INTEGER REFERENCES Plant(plant_id),
+		disease_id INTEGER REFERENCES Disease(disease_id),
+		description JSONB NOT NULL,
+		created_at timestamp NOT NULL,
+		PRIMARY KEY (plant_id, disease_id)
 	)`
 
 	_, err := s.db.Exec(query)
@@ -97,8 +134,8 @@ func (s *PostgresStore) createPredictResultTable() error {
 	query := `CREATE TABLE IF NOT EXISTS PredictResult (
 		result_id SERIAL PRIMARY KEY,
 		user_id INTEGER REFERENCES Account(user_id) NOT NULL,
-		disease_id INTEGER REFERENCES Disease(disease_id),
-		predict_result BOOLEAN NOT NULL,
+		plant_id INTEGER REFERENCES Plant(disease_id),
+		disease_id INTEGER REFERENCES Disease(plant_id),
 		created_at timestamp NOT NULL
 	)`
 

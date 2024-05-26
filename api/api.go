@@ -41,9 +41,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
 	router.HandleFunc("/account/{user-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleAccountByID), s.store))
 
-	router.HandleFunc("/disease", makeHTTPHandleFunc(s.handleDisease))
-	router.HandleFunc("/diseases", makeHTTPHandleFunc(s.handleCreateDiseases))
-	router.HandleFunc("/disease/{user-id}/{disease-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleDiseaseByID), s.store))
+	router.HandleFunc("/disease", makeHTTPHandleFunc(s.handlePlantDisease))
 
 	router.HandleFunc("/result/{user-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleResult), s.store))
 	router.HandleFunc("/result/{user-id}/{result-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleGetResultByID), s.store))

@@ -50,6 +50,19 @@ func (s *PostgresStore) GetPlantByID(id int) (*data.Plant, error) {
 	return nil, fmt.Errorf("plant %d not found", id)
 }
 
+func (s *PostgresStore) GetPlantByName(name string) (*data.Plant, error) {
+	rows, err := s.db.Query("SELECT * FROM Plant WHERE plant_name = $1", name)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		return scanIntoPlant(rows)
+	}
+
+	return nil, fmt.Errorf("plant %s not found", name)
+}
+
 func scanIntoPlant(rows *sql.Rows) (*data.Plant, error) {
 	plant := new(data.Plant)
 	err := rows.Scan(

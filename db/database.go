@@ -119,8 +119,8 @@ func (s *PostgresStore) createPlantTable() error {
 
 func (s *PostgresStore) createPlantDiseaseTable() error {
 	query := `CREATE TABLE IF NOT EXISTS PlantDisease (
-		plant_id INTEGER REFERENCES Plant(plant_id),
-		disease_id INTEGER REFERENCES Disease(disease_id),
+		plant_id INTEGER REFERENCES Plant(plant_id) NOT NULL,
+		disease_id INTEGER REFERENCES Disease(disease_id) NOT NULL,
 		description JSONB NOT NULL,
 		created_at timestamp NOT NULL,
 		PRIMARY KEY (plant_id, disease_id)
@@ -134,8 +134,8 @@ func (s *PostgresStore) createPredictResultTable() error {
 	query := `CREATE TABLE IF NOT EXISTS PredictResult (
 		result_id SERIAL PRIMARY KEY,
 		user_id INTEGER REFERENCES Account(user_id) NOT NULL,
-		plant_id INTEGER REFERENCES Plant(disease_id),
-		disease_id INTEGER REFERENCES Disease(plant_id),
+		plant_id INTEGER REFERENCES Plant(plant_id) NOT NULL,
+		disease_id INTEGER REFERENCES Disease(disease_id) NOT NULL,
 		created_at timestamp NOT NULL
 	)`
 

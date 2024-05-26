@@ -34,7 +34,17 @@ func (s *PostgresStore) GetPlantDiseases() ([]*data.PlantDisease, error) {
 
 	plantDiseases := []*data.PlantDisease{}
 	for rows.Next() {
+
 		plantDisease, err := scanIntoPlantDisease(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		plantDisease.Plant, err = s.GetPlantByID(plantDisease.Plant.ID)
+		if err != nil {
+			return nil, err
+		}
+		plantDisease.Disease, err = s.GetDiseaseByID(plantDisease.Disease.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -60,16 +70,17 @@ func (s *PostgresStore) GetPlantDiseaseByID(plantID, diseaseID int) (*data.Plant
 
 func scanIntoPlantDisease(rows *sql.Rows) (*data.PlantDisease, error) {
 	plantDisease := new(data.PlantDisease)
+	plantDisease.Plant = new(data.Plant)
+	plantDisease.Disease = new(data.Disease)
 	var bs []uint8
 	err := rows.Scan(
-		&plantDisease.Disease.ID,
 		&plantDisease.Plant.ID,
+		&plantDisease.Disease.ID,
 		&bs,
 		&plantDisease.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
-
 	err = json.Unmarshal(bs, &plantDisease.Description)
 
 	return plantDisease, err

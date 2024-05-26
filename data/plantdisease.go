@@ -12,8 +12,8 @@ type PlantDisease struct {
 }
 
 type CreatePlantDiseaseRequest struct {
-	DiseaseName string                 `json:"disease_name"`
 	PlantName   string                 `json:"plant_name"`
+	DiseaseName string                 `json:"disease_name"`
 	Description map[string]interface{} `json:"description"`
 }
 

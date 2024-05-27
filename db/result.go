@@ -25,7 +25,7 @@ func (s *PostgresStore) CreateResult(result *data.Result) (int, error) {
 }
 
 func (s *PostgresStore) GetResultsByUserID(id int) ([]*data.Result, error) {
-	rows, err := s.db.Query("SELECT * FROM PredictResult WHERE user_id = $1, deleted = false", id)
+	rows, err := s.db.Query("SELECT result_id, user_id, plant_id, disease_id, created_at FROM PredictResult WHERE user_id = $1 AND deleted = false", id)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (s *PostgresStore) GetResultsByUserID(id int) ([]*data.Result, error) {
 }
 
 func (s *PostgresStore) GetResultByID(id int) (*data.Result, error) {
-	rows, err := s.db.Query("SELECT * FROM PredictResult WHERE result_id = $1, deleted = false", id)
+	rows, err := s.db.Query("SELECT result_id, user_id, plant_id, disease_id, created_at FROM PredictResult WHERE result_id = $1 AND deleted = false", id)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (s *PostgresStore) GetResultByID(id int) (*data.Result, error) {
 }
 
 func (s *PostgresStore) GetResults() ([]*data.Result, error) {
-	rows, err := s.db.Query("SELECT * FROM PredictResult")
+	rows, err := s.db.Query("SELECT result_id, user_id, plant_id, disease_id, created_at FROM PredictResult")
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (s *PostgresStore) GetResults() ([]*data.Result, error) {
 }
 
 func (s *PostgresStore) DeleteResult(id int) error {
-	_, err := s.db.Query("UPDATE PredictResult SET deleted = true, deleted_at = $1 WHERE result_id = $2", time.Now(), id)
+	_, err := s.db.Query("UPDATE PredictResult SET deleted = true , deleted_at = $1 WHERE result_id = $2", time.Now(), id)
 	return err
 }
 

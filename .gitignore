@@ -25,6 +25,3 @@ postgresdata
 tmp
 .env
 *.json
-db/result.go
-db/result.go
-db/result.go

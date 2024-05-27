@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/Narutchai01/ProjectC-BE/data"
 )
@@ -87,6 +88,11 @@ func (s *PostgresStore) GetResults() ([]*data.Result, error) {
 	}
 
 	return results, nil
+}
+
+func (s *PostgresStore) DeleteResult(id int) error {
+	_, err := s.db.Query("UPDATE PredictResult SET deleted = true, deleted_at = $1 WHERE result_id = $2", time.Now(), id)
+	return err
 }
 
 func scanIntoResult(rows *sql.Rows) (*data.Result, error) {

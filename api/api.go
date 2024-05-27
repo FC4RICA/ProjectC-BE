@@ -44,7 +44,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("/disease", makeHTTPHandleFunc(s.handlePlantDisease))
 
 	router.HandleFunc("/result/{user-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleResult), s.store))
-	router.HandleFunc("/result/{user-id}/{result-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleGetResultByID), s.store))
+	router.HandleFunc("/result/{user-id}/{result-id}", handlers.WithJWTAuth(makeHTTPHandleFunc(s.handleResultByID), s.store))
 
 	log.Println("JSON API server running on port " + s.listenAddr)
 

@@ -37,6 +37,7 @@ type Storage interface {
 	GetResults() ([]*data.Result, error)
 	GetResultByID(int) (*data.Result, error)
 	GetResultsByUserID(int) ([]*data.Result, error)
+	DeleteResult(int) error
 }
 
 type PostgresStore struct {
@@ -137,7 +138,9 @@ func (s *PostgresStore) createPredictResultTable() error {
 		user_id INTEGER REFERENCES Account(user_id) NOT NULL,
 		plant_id INTEGER REFERENCES Plant(plant_id) NOT NULL,
 		disease_id INTEGER REFERENCES Disease(disease_id) NOT NULL,
-		created_at timestamp NOT NULL
+		created_at timestamp NOT NULL,
+		deleted BOOLEAN DEFAULT false,
+		deleted_at timestamp
 	)`
 
 	_, err := s.db.Exec(query)

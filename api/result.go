@@ -21,6 +21,16 @@ func (s *APIServer) handleResult(w http.ResponseWriter, r *http.Request) error {
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
+func (s *APIServer) handleResultByID(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "GET" {
+		return s.handleGetResultByID(w, r)
+	}
+	if r.Method == "DELETE" {
+		return s.handleDeleteResult(w, r)
+	}
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
 func (s *APIServer) handleCreateResult(w http.ResponseWriter, r *http.Request) error {
 	createResultReq := new(data.CreateResultRequest)
 	userid, err := util.GetID(r, "user")
@@ -156,4 +166,17 @@ func (s *APIServer) handleGetResultByID(w http.ResponseWriter, r *http.Request) 
 	}
 
 	return util.WriteJSON(w, http.StatusOK, data.ResultResponse{Result: result, Images: images})
+}
+
+func (s *APIServer) handleDeleteResult(w http.ResponseWriter, r *http.Request) error {
+	id, err := util.GetID(r, "result")
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.DeleteResult(id); err != nil {
+		return err
+	}
+
+	return util.WriteJSON(w, http.StatusOK, map[string]int{"deleted": id})
 }

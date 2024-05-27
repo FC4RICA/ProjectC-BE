@@ -25,7 +25,7 @@ func (s *PostgresStore) CreateResult(result *data.Result) (int, error) {
 }
 
 func (s *PostgresStore) GetResultsByUserID(id int) ([]*data.Result, error) {
-	rows, err := s.db.Query("SELECT * FROM PredictResult WHERE user_id = $1", id)
+	rows, err := s.db.Query("SELECT * FROM PredictResult WHERE user_id = $1, deleted = false", id)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (s *PostgresStore) GetResultsByUserID(id int) ([]*data.Result, error) {
 }
 
 func (s *PostgresStore) GetResultByID(id int) (*data.Result, error) {
-	rows, err := s.db.Query("SELECT * FROM PredictResult WHERE result_id = $1", id)
+	rows, err := s.db.Query("SELECT * FROM PredictResult WHERE result_id = $1, deleted = false", id)
 	if err != nil {
 		return nil, err
 	}

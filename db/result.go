@@ -36,6 +36,11 @@ func (s *PostgresStore) GetResultsByUserID(id int) ([]*data.Result, error) {
 			return nil, err
 		}
 
+		result.PlantDisease, err = s.GetPlantDiseaseByID(result.PlantDisease.Plant.ID, result.PlantDisease.Disease.ID)
+		if err != nil {
+			return nil, err
+		}
+
 		results = append(results, result)
 	}
 
@@ -49,7 +54,17 @@ func (s *PostgresStore) GetResultByID(id int) (*data.Result, error) {
 	}
 
 	for rows.Next() {
-		return scanIntoResult(rows)
+		result, err := scanIntoResult(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		result.PlantDisease, err = s.GetPlantDiseaseByID(result.PlantDisease.Plant.ID, result.PlantDisease.Disease.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		return result, nil
 	}
 
 	return nil, fmt.Errorf("result %d not found", id)

@@ -21,6 +21,11 @@ type PredictResponse struct {
 	DiseaseName string `json:"diseasename"`
 }
 
+type ResultResponse struct {
+	Result *Result  `json:"result"`
+	Images []*Image `json:"images"`
+}
+
 func NewResult(result *CreateResultRequest) (*Result, error) {
 	return &Result{
 		UserID:       result.UserID,

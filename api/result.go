@@ -138,10 +138,10 @@ func (s *APIServer) handleGetResultByID(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	result.PlantDisease, err = s.store.GetPlantDiseaseByID(result.PlantDisease.Plant.ID, result.PlantDisease.Disease.ID)
+	images, err := s.store.GetImagesByResultID(id)
 	if err != nil {
 		return err
 	}
 
-	return util.WriteJSON(w, http.StatusOK, result)
+	return util.WriteJSON(w, http.StatusOK, data.ResultResponse{Result: result, Images: images})
 }

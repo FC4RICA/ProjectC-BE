@@ -62,7 +62,21 @@ func (s *PostgresStore) GetPlantDiseaseByID(plantID, diseaseID int) (*data.Plant
 	}
 
 	for rows.Next() {
-		return scanIntoPlantDisease(rows)
+		plantDisease, err := scanIntoPlantDisease(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		plantDisease.Plant, err = s.GetPlantByID(plantDisease.Plant.ID)
+		if err != nil {
+			return nil, err
+		}
+		plantDisease.Disease, err = s.GetDiseaseByID(plantDisease.Disease.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		return plantDisease, nil
 	}
 
 	return nil, fmt.Errorf("disease_id %d, plant_id %d not found", plantID, diseaseID)

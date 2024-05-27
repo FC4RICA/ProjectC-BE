@@ -120,7 +120,19 @@ func (s *APIServer) handleGetResultsByUserID(w http.ResponseWriter, r *http.Requ
 		return err
 	}
 
-	return util.WriteJSON(w, http.StatusOK, results)
+	resultImages := []*data.ResultResponse{}
+	for _, result := range results {
+		resultImage := new(data.ResultResponse)
+		resultImage.Result = result
+		resultImage.Images, err = s.store.GetImagesByResultID(id)
+		if err != nil {
+			return err
+		}
+
+		resultImages = append(resultImages, resultImage)
+	}
+
+	return util.WriteJSON(w, http.StatusOK, resultImages)
 }
 
 func (s *APIServer) handleGetResultByID(w http.ResponseWriter, r *http.Request) error {

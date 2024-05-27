@@ -75,13 +75,17 @@ func (s *PostgresStore) GetResults() ([]*data.Result, error) {
 }
 
 func scanIntoResult(rows *sql.Rows) (*data.Result, error) {
+	println("error ths here")
 	result := new(data.Result)
+	result.PlantDisease = new(data.PlantDisease)
+	result.PlantDisease.Plant = new(data.Plant)
+	result.PlantDisease.Disease = new(data.Disease)
 	err := rows.Scan(
 		&result.ID,
 		&result.UserID,
 		&result.PlantDisease.Plant.ID,
 		&result.PlantDisease.Disease.ID,
 		&result.CreatedAt)
-
+	println("error agin")
 	return result, err
 }

@@ -23,7 +23,7 @@ type PredictResponse struct {
 
 type ResultResponse struct {
 	Result *Result  `json:"result"`
-	Images []*Image `json:"images"`
+	Images []*Image `json:"imagesURL"`
 }
 
 func NewResult(result *CreateResultRequest) (*Result, error) {
